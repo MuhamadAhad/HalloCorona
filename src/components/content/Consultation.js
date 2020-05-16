@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import MarkdownIt from "markdown-it";
+import ReactMarkdown from "react-markdown";
 import FormatDate from "../../function/FormatDate";
 
 class Consultation extends Component {
@@ -6,6 +8,24 @@ class Consultation extends Component {
     super(props);
     this.state = {};
   }
+
+  mdParser = new MarkdownIt();
+
+  stylingStatus = (status) => {
+    if (status === "approve") {
+      return (
+        <small className="alert alert-success" style={{ padding: 5 }}>
+          Approved
+        </small>
+      );
+    } else if (status === "cancel") {
+      return (
+        <small className="alert alert-danger" style={{ padding: 5 }}>
+          Canceled
+        </small>
+      );
+    }
+  };
 
   render() {
     const { consul } = this.props;
@@ -52,7 +72,19 @@ class Consultation extends Component {
         <hr />
         {consul && consul.Reply !== null ? (
           <div className="mainConsul">
-            <div style={{ width: "12%" }}></div>
+            <div
+              style={{
+                width: "12%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {consul.status &&
+                consul.Reply &&
+                consul.Reply.response !== "" &&
+                this.stylingStatus(consul.status)}
+            </div>
             <div className="avatarContainer">
               <div>
                 <img
@@ -68,18 +100,34 @@ class Consultation extends Component {
             <div className="consulDesc">
               <div>
                 <span className="text-muted">
-                  {consul && consul.Reply && consul.Reply.response}
+                  {consul.Reply && consul.Reply.response !== "" ? (
+                    <ReactMarkdown
+                      escapeHtml={false}
+                      source={this.mdParser.render(consul.Reply.response)}
+                    />
+                  ) : (
+                    this.stylingStatus(consul.status)
+                  )}
                 </span>
               </div>
               <div>
-                <span className="text-muted">
-                  {consul && consul.Reply && consul.Reply.User.fullName}
-                </span>
+                <small className="text-muted">
+                  Dr. {consul && consul.Reply && consul.Reply.User.fullName}
+                </small>
               </div>
             </div>
           </div>
         ) : (
-          ""
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: 15,
+            }}
+          >
+            <h5 className="text-muted"> Waiting reply </h5>
+          </div>
         )}
       </div>
     );

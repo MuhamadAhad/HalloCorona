@@ -6,13 +6,18 @@ import {
 } from "../_constants";
 import { API, setAuthToken } from "../config/API";
 
-export const getConsultations = () => {
+export const getConsultations = (data) => {
   return {
     type: GET_CONSULTATIONS,
     payload: async () => {
       try {
         setAuthToken(localStorage.getItem("token"));
-        const consuls = await API.get("/consultations");
+        let consuls = "";
+        if (data) {
+          consuls = await API.get(`/consultations?status=${data}`);
+        } else {
+          consuls = await API.get(`/consultations`);
+        }
         return consuls.data;
       } catch (error) {
         console.log(error);

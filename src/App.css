@@ -49,6 +49,7 @@
   width: 70%;
   flex-direction: column;
   padding: 5px;
+  justify-content: space-between;
 }
 
 .avatar {
@@ -95,7 +96,14 @@
 }
 
 .labelImg {
-  background-color: whitesmoke;
+  background-color: silver;
+  padding: 5px;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.labelCard {
+  background-color: silver;
   margin-right: 3px;
   padding-left: 5px;
   padding-right: 5px;

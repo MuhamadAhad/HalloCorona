@@ -1,12 +1,18 @@
 import React, { Component } from "react";
 import { Button, Form } from "react-bootstrap";
 import { connect } from "react-redux";
+import ReactMarkdown from "react-markdown";
+import MarkdownIt from "markdown-it";
+import MdEditor from "react-markdown-editor-lite";
+import "react-markdown-editor-lite/lib/index.css";
+
 import {
   responseConsultation,
   getConsultations,
 } from "../../_actions/consultation";
 import { dataSign } from "../../_actions/user";
 import FormatDate from "../../function/FormatDate";
+import { haveValue } from "../../function/FormatNumber";
 
 class ConsultationPage extends Component {
   constructor(props) {
@@ -28,6 +34,50 @@ class ConsultationPage extends Component {
     this.setState({ ...this.state, [e.target.name]: e.target.value });
   };
 
+  mdParser = new MarkdownIt();
+
+  handleEditorChange = ({ html, text }) => {
+    this.setState({ response: text });
+  };
+
+  stylingStatus = (status) => {
+    if (status === "approve") {
+      return (
+        <small className="alert alert-success" style={{ padding: 5 }}>
+          Waiting live consultation
+        </small>
+      );
+    } else if (status === "waiting") {
+      return (
+        <small className="alert alert-warning" style={{ padding: 5 }}>
+          Pending
+        </small>
+      );
+    } else if (status === "cancel") {
+      return (
+        <small className="alert alert-danger" style={{ padding: 5 }}>
+          Cancel
+        </small>
+      );
+    }
+  };
+
+  stylingResponse = (status, doctor) => {
+    if (status === "approve") {
+      return (
+        <small className="alert alert-success" style={{ padding: 5 }}>
+          Approved by Dr. {doctor}
+        </small>
+      );
+    } else if (status === "cancel") {
+      return (
+        <small className="alert alert-danger" style={{ padding: 5 }}>
+          Canceled by Dr. {doctor}
+        </small>
+      );
+    }
+  };
+
   getContent = (status) => {
     if (status === "waiting") {
       return (
@@ -38,12 +88,11 @@ class ConsultationPage extends Component {
                 <Form.Label>
                   <strong>Give Response</strong>
                 </Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows="4"
-                  name="response"
-                  value={this.state.response}
-                  onChange={this.handleChange}
+                <MdEditor
+                  value=""
+                  style={{ height: "200px" }}
+                  renderHTML={(text) => this.mdParser.render(text)}
+                  onChange={this.handleEditorChange}
                 />
               </Form.Group>
             </Form>
@@ -70,8 +119,15 @@ class ConsultationPage extends Component {
               >
                 <Button
                   variant="danger"
-                  onClick={() => {
-                    this.handleClick("cancel");
+                  onClick={async () => {
+                    if (haveValue(this.state.response)) {
+                      const data = {
+                        response: this.state.response,
+                        status: "cancel",
+                      };
+                      await this.props.responConsul(data, this.props.consul.id);
+                      await this.props.getConsuls();
+                    }
                   }}
                 >
                   <strong>Cancel</strong>
@@ -79,12 +135,14 @@ class ConsultationPage extends Component {
                 <Button
                   variant="success"
                   onClick={async () => {
-                    const data = {
-                      response: this.state.response,
-                      status: "approve",
-                    };
-                    await this.props.responConsul(data, this.props.consul.id);
-                    await this.props.getConsuls();
+                    if (haveValue(this.state.response)) {
+                      const data = {
+                        response: this.state.response,
+                        status: "approve",
+                      };
+                      await this.props.responConsul(data, this.props.consul.id);
+                      await this.props.getConsuls();
+                    }
                   }}
                 >
                   <strong>Approve</strong>
@@ -94,8 +152,30 @@ class ConsultationPage extends Component {
           </div>
         </>
       );
-    } else if (status === "approve") {
-      return <div>{this.props.consul.Reply.response}</div>;
+    } else if (status !== "waiting") {
+      return (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <div>
+            {
+              <ReactMarkdown
+                source={
+                  this.props.consul.Reply.response &&
+                  this.mdParser.render(this.props.consul.Reply.response)
+                }
+                escapeHtml={false}
+              />
+            }
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <span className="text-muted">
+              {this.stylingResponse(
+                this.props.consul.status,
+                this.props.consul.Reply.User.fullName
+              )}
+            </span>
+          </div>
+        </div>
+      );
     }
   };
 
@@ -109,6 +189,7 @@ class ConsultationPage extends Component {
               display: "flex",
               flexDirection: "column",
               width: "70%",
+              justifyContent: "space-between",
             }}
           >
             <div>
@@ -119,6 +200,7 @@ class ConsultationPage extends Component {
                 <p>{consul.description}</p>
               </small>
             </div>
+            <div>{this.stylingStatus(consul.status)}</div>
           </div>
           <div style={{ display: "flex", width: "30%", flexDirection: "row" }}>
             <div
@@ -164,7 +246,7 @@ class ConsultationPage extends Component {
           <br />
         </div>
         <br />
-        <table className="table">
+        <table className="table" style={{ textAlign: "center" }}>
           <thead>
             <tr>
               <th>No</th>
@@ -182,9 +264,9 @@ class ConsultationPage extends Component {
               <td className="text-muted">{consul.fullName}</td>
               <td className="text-muted">{consul.gender}</td>
               <td className="text-muted">{consul.phone}</td>
-              <td className="text-muted">{consul.age}</td>
-              <td className="text-muted">{consul.height}</td>
-              <td className="text-muted">{consul.weight}</td>
+              <td className="text-muted">{`${consul.age} years old`}</td>
+              <td className="text-muted">{`${consul.height} cm`}</td>
+              <td className="text-muted">{`${consul.weight} kg`}</td>
             </tr>
           </tbody>
         </table>

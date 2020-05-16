@@ -1,11 +1,16 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import { Form, InputGroup, Button } from "react-bootstrap";
-import Header from "../../components/Header";
-import { dataSign } from "../../_actions/user";
 import { connect } from "react-redux";
+import MdEditor from "react-markdown-editor-lite";
+import "react-markdown-editor-lite/lib/index.css";
+import MarkdownIt from "markdown-it";
+
 import { createArticle } from "../../_actions/article";
 import { haveValue } from "../../function/FormatNumber";
+import Header from "../../components/Header";
+import { dataSign } from "../../_actions/user";
+
 class AddArticle extends Component {
   constructor(props) {
     super(props);
@@ -15,9 +20,11 @@ class AddArticle extends Component {
       title: "",
       description: "",
       attach: "",
+      tags: "",
     };
-    this.onChange = (editorState) => this.setState({ editorState });
   }
+
+  mdParser = new MarkdownIt();
 
   checkSign = async () => {
     await this.props.dataSign();
@@ -34,12 +41,18 @@ class AddArticle extends Component {
     }
     e.preventDefault();
     this.setState({ validated: true });
-    const { title, description, attach } = this.state;
-    if (haveValue(title) && haveValue(description) && haveValue(attach)) {
+    const { title, description, attach, tags } = this.state;
+    if (
+      haveValue(title) &&
+      haveValue(description) &&
+      haveValue(attach) &&
+      haveValue(tags)
+    ) {
       const data = {
         title,
         description,
         attach,
+        tags,
       };
       await this.props.createArticle(data);
       if (this.props.loading === false) {
@@ -50,6 +63,11 @@ class AddArticle extends Component {
   handleChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });
   };
+
+  handleEditorChange = ({ html, text }) => {
+    this.setState({ description: text });
+  };
+
   render() {
     const { validated } = this.state;
     return (
@@ -75,6 +93,19 @@ class AddArticle extends Component {
                 />
                 <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
               </Form.Group>
+              <Form.Group controlId="validationCustom10">
+                <Form.Label>Tags</Form.Label>
+
+                <Form.Control
+                  required
+                  type="text"
+                  placeholder="separate tags using space"
+                  name="tags"
+                  value={this.state.tags}
+                  onChange={this.handleChange}
+                />
+                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+              </Form.Group>
               <Form.Group controlId="validationCustom11">
                 <Form.Label>upload Image</Form.Label>
                 <InputGroup>
@@ -95,18 +126,14 @@ class AddArticle extends Component {
                 <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
               </Form.Group>
 
-              <Form.Group controlId="validationCustom11">
+              <Form.Group>
                 <Form.Label>Description</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows="8"
-                  placeholder="description about the article"
-                  name="description"
+                <MdEditor
                   value={this.state.description}
-                  onChange={this.handleChange}
-                  required
+                  style={{ height: "500px" }}
+                  renderHTML={(text) => this.mdParser.render(text)}
+                  onChange={this.handleEditorChange}
                 />
-                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
               </Form.Group>
               <div
                 style={{

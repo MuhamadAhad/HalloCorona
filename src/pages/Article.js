@@ -1,7 +1,10 @@
 import React, { Component } from "react";
-import Header from "../components/Header";
+import ReactMarkdown from "react-markdown";
+import MarkdownIt from "markdown-it";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
+
+import Header from "../components/Header";
 import { getArticle } from "../_actions/article";
 import { dataSign } from "../_actions/user";
 import FormatDate from "../function/FormatDate";
@@ -20,6 +23,8 @@ class Article extends Component {
     this.props.gArticle(this.props.match.params.id);
   };
 
+  mdParser = new MarkdownIt();
+
   render() {
     const { article } = this.props;
     return (
@@ -35,8 +40,15 @@ class Article extends Component {
                 {article.title}
               </h1>
             </div>
+            <div style={{ marginTop: 10, marginBottom: 15 }}>
+              {article.tags &&
+                article.tags.split(" ").map((data, idx) => (
+                  <span key={idx} className="labelImg">
+                    {data}
+                  </span>
+                ))}
+            </div>
             <div>
-              {" "}
               <span
                 className="text-muted"
                 style={{ textShadow: "0.05em 0.05em 2px #6c757d" }}
@@ -71,7 +83,13 @@ class Article extends Component {
               </div>
               <div style={{ padding: 10, marginTop: 10 }}></div>
               <div>
-                <p>{article.description}</p>
+                <ReactMarkdown
+                  source={
+                    article.description &&
+                    this.mdParser.render(article.description)
+                  }
+                  escapeHtml={false}
+                />
               </div>
             </div>
           </div>

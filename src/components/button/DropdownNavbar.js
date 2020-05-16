@@ -21,16 +21,16 @@ class DropdownNavbar extends Component {
   render() {
     const secondMenu =
       this.props.sign.level === "0" ? (
-        <Dropdown.Item as={Link} to="/addarticle">
+        <Dropdown.Item as={Link} to="/addarticle" variant="danger">
           <i className="fas fa-book-medical"></i> Add Article
         </Dropdown.Item>
       ) : (
-        <Dropdown.Item as={Link} to="/listconsultation">
+        <Dropdown.Item as={Link} to="/listconsultation" variant="danger">
           <i className="fas fa-notes-medical"></i> Consultation
         </Dropdown.Item>
       );
     return (
-      <Dropdown drop="left">
+      <Dropdown drop="left" variant="danger">
         <Dropdown.Toggle
           as={Image}
           src={require(`../../images/${
@@ -42,6 +42,7 @@ class DropdownNavbar extends Component {
           width="50px"
           height="50px"
           className="avatar"
+          variant="danger"
         ></Dropdown.Toggle>
 
         <Dropdown.Menu variant="danger">
@@ -51,7 +52,11 @@ class DropdownNavbar extends Component {
 
           {secondMenu}
           <hr style={{ margin: 0 }} />
-          <Dropdown.Item as="button" onClick={this.handleSignout}>
+          <Dropdown.Item
+            as="button"
+            onClick={this.handleSignout}
+            variant="danger"
+          >
             <i className="fas fa-power-off"></i> Sign Out
           </Dropdown.Item>
         </Dropdown.Menu>

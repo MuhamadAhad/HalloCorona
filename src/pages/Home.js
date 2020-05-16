@@ -1,12 +1,13 @@
 import React, { Component } from "react";
 import Header from "../components/Header";
-import CardProperty from "../components/card/CardProperty";
+import CardArticle from "../components/card/CardArticle";
 import { connect } from "react-redux";
 import { getArticles } from "../_actions/article";
 import { withRouter } from "react-router-dom";
 import { dataSign } from "../_actions/user";
 import { Button } from "react-bootstrap";
 import { clickModalSignin } from "../_actions/modal";
+//import {dateNow} from "../function/countDate";
 
 class Home extends Component {
   constructor(props) {
@@ -21,10 +22,10 @@ class Home extends Component {
     }
   };
 
-  async componentDidMount() {
+  componentDidMount = () => {
     //await this.props.getArticles(dateNow());
-    await this.props.getArticles(null);
-  }
+    this.props.getArticles(null);
+  };
 
   render() {
     const { articles, sign, clickSignin, history } = this.props;
@@ -92,7 +93,7 @@ class Home extends Component {
           {articles.data &&
             articles.data.length > 0 &&
             articles.data.map((rec, idx) => (
-              <CardProperty data={rec} key={idx} />
+              <CardArticle data={rec} key={idx} />
             ))}
         </div>
       </>

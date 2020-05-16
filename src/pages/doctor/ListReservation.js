@@ -7,6 +7,7 @@ import ApprovalConsultation from "../../components/modal/ApprovalConsultation";
 import { dataSign } from "../../_actions/user";
 import { withRouter } from "react-router-dom";
 import FormatDate from "../../function/FormatDate";
+import { Form } from "react-bootstrap";
 
 class ListReservation extends Component {
   constructor(props) {
@@ -21,7 +22,7 @@ class ListReservation extends Component {
     }
   };
 
-  stylingStatus(status) {
+  stylingStatus = (status) => {
     if (status === "approve") {
       return (
         <small className="alert alert-success" style={{ padding: 5 }}>
@@ -49,8 +50,12 @@ class ListReservation extends Component {
   };
 
   componentDidMount() {
-    this.props.getConsuls();
+    this.props.getConsuls(null);
   }
+
+  handleChange = (e) => {
+    this.props.getConsuls(e.target.value);
+  };
 
   render() {
     const { consuls } = this.props;
@@ -83,9 +88,25 @@ class ListReservation extends Component {
         <ApprovalConsultation />
         <div className="content">
           <div className="mainContent mainShadow">
-            <h3 className="titleColor">
-              <i className="fas fa-file-medical-alt"></i> Reservasi Data
-            </h3>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <h3 className="titleColor">
+                <i className="fas fa-file-medical-alt"></i> Reservasi Data
+              </h3>
+              <div>
+                <Form.Group>
+                  <Form.Control
+                    as="select"
+                    name="shortBy"
+                    onChange={this.handleChange}
+                  >
+                    <option value=""> Short By Status </option>
+                    <option value="approve">Waiting Live Consultation</option>
+                    <option value="waiting">Pending</option>
+                    <option value="cancel">Cancel</option>
+                  </Form.Control>
+                </Form.Group>
+              </div>
+            </div>
             <br />
             <table
               className="table table-striped"
@@ -119,7 +140,7 @@ const mapStateToProps = (state) => {
 };
 const mapDispatchToProps = (dispatch) => {
   return {
-    getConsuls: () => dispatch(getConsultations()),
+    getConsuls: (data) => dispatch(getConsultations(data)),
     getConsul: (idcons) => dispatch(getConsultation(idcons)),
     clickModal: () => dispatch(clickModalApproval()),
     dataSign: () => dispatch(dataSign()),
