@@ -90,7 +90,7 @@ class ConsultationPage extends Component {
                 </Form.Label>
                 <MdEditor
                   value=""
-                  style={{ height: "200px" }}
+                  style={{ height: 200 }}
                   renderHTML={(text) => this.mdParser.render(text)}
                   onChange={this.handleEditorChange}
                 />
@@ -155,17 +155,27 @@ class ConsultationPage extends Component {
     } else if (status !== "waiting") {
       return (
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <div>
-            {
-              <ReactMarkdown
-                source={
-                  this.props.consul.Reply.response &&
-                  this.mdParser.render(this.props.consul.Reply.response)
-                }
-                escapeHtml={false}
-              />
-            }
-          </div>
+          {this.props.consul.Reply.response !== "" && (
+            <>
+              <div>
+                <i className="fas fa-comment-medical"></i> Response
+              </div>
+              <div style={{ padding: 20, paddingTop: 5, paddingBottom: 5 }}>
+                <small>
+                  {
+                    <ReactMarkdown
+                      source={
+                        this.props.consul.Reply.response &&
+                        this.mdParser.render(this.props.consul.Reply.response)
+                      }
+                      escapeHtml={false}
+                    />
+                  }
+                </small>
+              </div>
+            </>
+          )}
+
           <div style={{ textAlign: "right" }}>
             <span className="text-muted">
               {this.stylingResponse(

@@ -42,7 +42,7 @@ class ListReservation extends Component {
         </small>
       );
     }
-  }
+  };
 
   handleAction = (id) => {
     this.props.getConsul(id);
@@ -99,7 +99,7 @@ class ListReservation extends Component {
                     name="shortBy"
                     onChange={this.handleChange}
                   >
-                    <option value=""> Short By Status </option>
+                    <option value=""> Show By Status </option>
                     <option value="approve">Waiting Live Consultation</option>
                     <option value="waiting">Pending</option>
                     <option value="cancel">Cancel</option>
